@@ -91,7 +91,10 @@ jobs:
           git config user.name  "github-actions[bot]"
           git remote add overleaf "https://git:${OVERLEAF_TOKEN}@git.overleaf.com/${OVERLEAF_PROJECT_ID}"
           git fetch overleaf master
-          rm -rf paper/
+          # Drop paper/ from both working tree AND index before re-staging
+          # from overleaf, otherwise `read-tree --prefix=paper/` collides with
+          # the existing index entries.
+          git rm -rf --quiet paper/
           git read-tree --prefix=paper/ -u overleaf/master
           if ! git diff --quiet --cached; then
             git checkout -B from-overleaf
