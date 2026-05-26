@@ -1,17 +1,18 @@
 name: Overleaf sync
 
-# Push the rendered `paper/` subtree to the Overleaf Git remote so collaborators
-# can comment / track-change in Overleaf while GitHub stays canonical.
+# Mirror `paper/` to the Overleaf Git remote so collaborators can comment /
+# track-change in Overleaf while GitHub stays canonical.
 #
 # Requires repo secrets:
-#   OVERLEAF_PROJECT_ID  — the ID at the end of your Overleaf project URL
-#   OVERLEAF_TOKEN       — generated at https://www.overleaf.com/user/settings (Git Integration)
+#   OVERLEAF_PROJECT_ID  — the ID at the end of the Overleaf project URL
+#   OVERLEAF_TOKEN       — generated at Overleaf → Account Settings → Git Integration
 #
 # Two jobs:
-#   render-and-push:  renders pandoc → paper/_build/*.tex, commits if changed,
-#                     then mirrors `paper/` to Overleaf as the root of the project.
-#   pull-from-overleaf: hourly cron that fetches Overleaf into a `from-overleaf`
-#                       branch so collaborator edits land as a PR you can merge.
+#   push-to-overleaf:    on push to paper/** or figures/paper/**, clones
+#                        Overleaf, mirrors `paper/` into it, commits, pushes.
+#   pull-from-overleaf:  hourly cron that fetches Overleaf into a
+#                        `from-overleaf` branch so collaborator edits land
+#                        as a PR to merge into main.
 
 on:
   push:
@@ -20,46 +21,20 @@ on:
       - 'paper/**'
       - 'figures/paper/**'
   schedule:
-    - cron: '17 * * * *'  # hourly, off the hour to avoid GitHub Actions queue spikes
+    - cron: '17 * * * *'  # hourly, off the hour to avoid GHA queue spikes
   workflow_dispatch:
 
-# `contents: write` is needed for both jobs: render-and-push commits the
-# re-rendered `paper/_build/*.tex` back to `main`; pull-from-overleaf pushes
-# a `from-overleaf` branch when collaborator edits land.
 permissions:
   contents: write
 
 jobs:
-  render-and-push:
+  push-to-overleaf:
     if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 0
-          token: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Install pandoc
-        run: sudo apt-get update -qq && sudo apt-get install -y pandoc
-
-      - name: Render markdown sections → LaTeX
-        run: |
-          mkdir -p paper/_build
-          for src in paper/sections/*.md; do
-            name=$(basename "$src" .md)
-            pandoc --from=markdown --to=latex \
-                   --output="paper/_build/${name}.tex" "$src"
-          done
-
-      - name: Commit re-rendered .tex if changed
-        run: |
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git config user.name  "github-actions[bot]"
-          if ! git diff --quiet paper/_build/; then
-            git add paper/_build/
-            git commit -m "Re-render paper/_build/*.tex (auto)"
-            git push origin main
-          fi
+          fetch-depth: 1
 
       - name: Mirror paper/ into Overleaf clone and push
         env:
@@ -67,18 +42,15 @@ jobs:
           OVERLEAF_TOKEN:      ${{ secrets.OVERLEAF_TOKEN }}
         run: |
           if [ -z "$OVERLEAF_PROJECT_ID" ] || [ -z "$OVERLEAF_TOKEN" ]; then
-            echo "::warning::OVERLEAF_PROJECT_ID / OVERLEAF_TOKEN not set — skipping Overleaf push"
+            echo "::warning::Overleaf secrets not set — skipping push"
             exit 0
           fi
-          # Overleaf prohibits force-push, so subtree-split (which generates
-          # new SHAs each time) is rejected. Instead: clone Overleaf, replace
-          # its working tree with the contents of `paper/`, commit, push. The
-          # Overleaf side always remains on its own master lineage.
+          # Overleaf prohibits force-push. Clone Overleaf, replace working tree
+          # with paper/ contents, commit, push along the existing master lineage.
           SRC="$PWD/paper"
           TMP=$(mktemp -d)
           git clone "https://git:${OVERLEAF_TOKEN}@git.overleaf.com/${OVERLEAF_PROJECT_ID}" "$TMP/overleaf"
           cd "$TMP/overleaf"
-          # Wipe tracked files (but keep .git). Then copy the fresh paper/ in.
           git rm -rf --quiet . || true
           rsync -a --exclude='.git' "$SRC"/ ./
           git add -A
@@ -112,8 +84,6 @@ jobs:
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git config user.name  "github-actions[bot]"
           git remote add overleaf "https://git:${OVERLEAF_TOKEN}@git.overleaf.com/${OVERLEAF_PROJECT_ID}"
-          # The Overleaf side is the flat `paper/` subtree; we restage it under
-          # `paper/` on a branch and let the human open a PR to merge.
           git fetch overleaf master
           rm -rf paper/
           git read-tree --prefix=paper/ -u overleaf/master

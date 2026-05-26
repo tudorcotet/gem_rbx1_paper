@@ -3,7 +3,7 @@
 %
 % Two ways to compile:
 %   (a) Local: `cd paper && latexmk -pdf main.tex`   (assumes pandoc
-%       has rendered sections/*.md → _build/*.tex; see paper/README.md)
+%       has rendered sections/*.md → sections/*.tex; see paper/README.md)
 %   (b) Overleaf: link this repo to an Overleaf project (paper/OVERLEAF.md).
 %       Overleaf compiles main.tex directly; sections/*.tex can be
 %       authored in Overleaf or synced from the markdown source.
@@ -36,14 +36,14 @@ author: tudor@adaptyvbio.com}}
 \maketitle
 
 \begin{abstract}
-\input{_build/abstract}
+\input{sections/abstract}
 \end{abstract}
 
 \section*{Introduction}
-\input{_build/introduction}
+\input{sections/introduction}
 
 \section*{Results}
-\input{_build/results}
+\input{sections/results}
 
 % ----------------------------------------------------------------------
 % Main figures
@@ -71,10 +71,10 @@ author: tudor@adaptyvbio.com}}
 \end{figure}
 
 \section*{Discussion}
-\input{_build/discussion}
+\input{sections/discussion}
 
 \section*{Methods}
-\input{_build/methods}
+\input{sections/methods}
 
 \bibliographystyle{naturemag}
 \bibliography{references}

@@ -56,6 +56,3 @@ paper/*.toc
 paper/*.synctex.gz
 paper/*.fdb_latexmk
 paper/*.fls
-# NOTE: `paper/_build/*.tex` is NOT gitignored — Overleaf can't run pandoc on
-# compile, so the rendered .tex files must live in the repo. `mise run
-# paper:render` regenerates them from `paper/sections/*.md`.
