@@ -93,12 +93,13 @@ Full conventions in [`CLAUDE.md`](CLAUDE.md).
 ## Citation
 
 ```bibtex
-@dataset{rbx1_gem_adaptyv_2026,
-  author    = {{Adaptyv Bio} and {GEM Workshop} and {Competition Consortium}},
-  title     = {GEM × Adaptyv 2026: a community RBX1 binder design competition},
+@misc{rbx1_2026,
+  author    = {{The GEM $\times$ Adaptyv RBX1 Consortium}},
+  title     = {A community benchmark of de novo binder design against {RBX1}},
   year      = {2026},
   publisher = {Zenodo},
   doi       = {TBD},
+  url       = {https://github.com/tudorcotet/gem_rbx1_paper},
 }
 ```
 
