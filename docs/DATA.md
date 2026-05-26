@@ -120,7 +120,7 @@ ProteinBase aggregates the per-replicate hits.
 | `kon_mean`        | float | Mean replicate on-rate (1/Ms). |
 | `n_kd_records`    | int   | Replicates that produced a fittable curve. |
 
-### 5. Modality / fold class (318/322)
+### 5. Modality / fold class (322/322 for `pb_design_class`; 283/322 for CATH `pb_classification`)
 
 | column            | type   | notes |
 |---                |---     |---|
@@ -136,7 +136,7 @@ ProteinBase aggregates the per-replicate hits.
 | `pb_molecular_weight`   | float  | Daltons (ProteinBase recomputation). |
 | `pb_isoelectric_point`  | float  | pI. |
 
-### 7. In-silico folding metrics (318/322)
+### 7. In-silico folding metrics (322/322)
 
 | column                              | type  | notes |
 |---                                  |---    |---|
@@ -162,7 +162,7 @@ all 322 designs are computed in this repository and pooled into
 | `pb_tm_score_afdb50`        | float  | TM-score vs AFDB50 closest hit. |
 | `pb_afdb50_top_id`          | string | AFDB50 hit identifier. |
 
-### 9. Artifact URLs (318/322 for ESMFold; subset for SPR)
+### 9. Artifact URLs (322/322 ESMFold CIF; 319/322 stylised PNG; subset for SPR)
 
 | column                  | type   | notes |
 |---                      |---     |---|
