@@ -1,0 +1,172 @@
+## bioarena-trem2 publication-grade matplotlib RC
+##
+## Calibrated against figures in:
+##   Mhanna et al. 2024 Nat Rev Meth Primers (DOI: 10.1038/s43586-023-00284-1)
+##   Bashour et al. 2024 Communications Biology (DOI: 10.1038/s42003-024-06561-3)
+##   Hie et al. 2023 Nature Biotechnology (DOI: 10.1038/s41587-023-01763-2)
+##   Nguyen et al. 2024 Science / Evo (DOI: 10.1126/science.ado9336)
+##   King et al. 2025 bioRxiv 2025.09.12.675911
+##
+## See theme/PUBLICATION_STYLE.md for the citation map of why each value is set
+## the way it is.
+##
+## Loaded via:
+##   import matplotlib
+##   matplotlib.rc_params_from_file("theme/matplotlibrc_publication", use_default_template=True)
+## or via theme.mpl_publication.set_publication_style()
+
+# ── FONT ──────────────────────────────────────────────────────────────────────
+# Helvetica → Arial → DejaVu Sans fallback chain. Helvetica is the system
+# face on Mac (always present); Arial is its Microsoft equivalent on
+# Windows/Linux; DejaVu Sans is matplotlib's bundled fallback. NEVER set
+# Geist or Inter here — Geist is brand body, Inter is the AI-default tell.
+font.family:        sans-serif
+font.sans-serif:    Helvetica, Arial, Liberation Sans, DejaVu Sans
+font.size:          8
+font.weight:        regular
+font.style:         normal
+font.stretch:       normal
+
+# ── MATHTEXT ──────────────────────────────────────────────────────────────────
+# Custom set so $K_D$ uses the same Helvetica as the body text — Bashour Fig 4
+# clearly does this (the K_D in the panel matches roman labels). Default is
+# CMR which looks like a TeX paper, not a Nature figure.
+mathtext.fontset:   custom
+mathtext.rm:        sans
+mathtext.it:        sans:italic
+mathtext.bf:        sans:bold
+
+# ── AXES ──────────────────────────────────────────────────────────────────────
+# Spines: bottom + left only. Top + right hidden. Linewidth 0.5pt — confirmed
+# by inspection of Bashour 2024 Fig 2a–4c, King 2025 Fig 1D–J.
+axes.spines.top:        False
+axes.spines.right:      False
+axes.spines.bottom:     True
+axes.spines.left:       True
+axes.linewidth:         0.5
+axes.edgecolor:         0F1419
+axes.facecolor:         white
+axes.labelcolor:        0F1419
+axes.labelweight:       regular
+axes.labelsize:         8
+axes.titlesize:         9
+axes.titleweight:       bold
+axes.titlepad:          4.0
+axes.labelpad:          3.0
+axes.grid:              False
+axes.unicode_minus:     True
+axes.axisbelow:         True
+axes.xmargin:           0.05
+axes.ymargin:           0.05
+
+# Default categorical color cycler — agent/human first, then mute, then
+# accents. Pulled from theme/palettes.json `agent_vs_human` extended with
+# brand cyan-deep and amber for the rare 4-or-more-category case.
+axes.prop_cycle: cycler('color', ['30C5F5', 'FFB547', '5C6773', '36B7F6', 'FF4628', '1FE48F', '0F1419', '9EDFFF'])
+
+# ── TICKS ─────────────────────────────────────────────────────────────────────
+# Outward, 2.5pt long, 0.5pt wide. Same on x and y. No minor ticks unless
+# the user explicitly turns them on (e.g. log scale).
+xtick.direction:        out
+ytick.direction:        out
+xtick.major.size:       2.5
+ytick.major.size:       2.5
+xtick.major.width:      0.5
+ytick.major.width:      0.5
+xtick.minor.size:       1.5
+ytick.minor.size:       1.5
+xtick.minor.width:      0.4
+ytick.minor.width:      0.4
+xtick.major.pad:        2.0
+ytick.major.pad:        2.0
+xtick.color:            0F1419
+ytick.color:            0F1419
+xtick.labelsize:        7
+ytick.labelsize:        7
+
+# ── LEGEND ────────────────────────────────────────────────────────────────────
+# No frame by default — Bashour and Hie both publish frameless legends.
+# Caller can add `frameon=True` for the rare case where the legend sits
+# directly on top of busy data.
+legend.frameon:         False
+legend.fontsize:        7
+legend.title_fontsize:  7
+legend.handlelength:    1.4
+legend.handletextpad:   0.6
+legend.columnspacing:   1.0
+legend.borderpad:       0.4
+legend.borderaxespad:   0.5
+
+# ── LINES / MARKERS ───────────────────────────────────────────────────────────
+# Calibrated for 89mm single-column. Lines slightly thicker than tick marks
+# so they read at print size.
+lines.linewidth:        1.0
+lines.markersize:       4
+lines.markeredgewidth:  0.4
+lines.solid_capstyle:   round
+lines.solid_joinstyle:  round
+
+# ── PATCHES ───────────────────────────────────────────────────────────────────
+# Bars / boxes — thin black edge, slight transparency on overlapping fills
+# is up to the caller (we don't set alpha here so violins remain opaque by
+# default).
+patch.linewidth:        0.5
+patch.edgecolor:        0F1419
+patch.force_edgecolor:  True
+patch.facecolor:        30C5F5
+
+# ── BOXPLOTS ──────────────────────────────────────────────────────────────────
+# Bashour Fig 2a / Fig 4c style — thin lines, no fliers (we show every point
+# as a strip overlay anyway, so boxplot fliers would double-count).
+boxplot.boxprops.linewidth:    0.5
+boxplot.whiskerprops.linewidth: 0.5
+boxplot.capprops.linewidth:    0.5
+boxplot.medianprops.linewidth: 1.0
+boxplot.medianprops.color:     0F1419
+boxplot.flierprops.marker:     o
+boxplot.flierprops.markersize: 2
+boxplot.showfliers:            False
+
+# ── HISTOGRAMS ────────────────────────────────────────────────────────────────
+hist.bins: 30
+
+# ── ERRORBARS ─────────────────────────────────────────────────────────────────
+errorbar.capsize:       2
+
+# ── FIGURE ────────────────────────────────────────────────────────────────────
+# Default size 89mm × 60mm — a single-column landscape panel. Most calls
+# override this.  150 dpi for screen preview; savefig overrides to 600.
+figure.figsize:         3.504, 2.362
+figure.dpi:             150
+figure.facecolor:       white
+figure.edgecolor:       white
+figure.frameon:         False
+figure.titlesize:       10
+figure.titleweight:     bold
+figure.subplot.left:    0.12
+figure.subplot.right:   0.97
+figure.subplot.top:     0.92
+figure.subplot.bottom:  0.14
+figure.subplot.wspace:  0.30
+figure.subplot.hspace:  0.40
+
+# ── SAVEFIG ───────────────────────────────────────────────────────────────────
+# PDF master, 600 dpi raster mirror. fonttype 42 = TrueType embedding so
+# Helvetica embeds as text rather than paths (required for journal
+# submission). bbox=tight + small pad = no extra white margin.
+savefig.format:         pdf
+savefig.dpi:            600
+savefig.facecolor:      white
+savefig.edgecolor:      white
+savefig.bbox:           tight
+savefig.pad_inches:     0.02
+savefig.transparent:    False
+
+# Font embedding for PDF and PostScript. 42 = TrueType.
+pdf.fonttype:           42
+ps.fonttype:            42
+pdf.compression:        9
+pdf.use14corefonts:     False
+
+# ── INTERACTIVE ───────────────────────────────────────────────────────────────
+interactive: False

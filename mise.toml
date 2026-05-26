@@ -1,0 +1,122 @@
+## RBX1 GEM x Adaptyv 2026 paper — task runner
+##
+## One-time setup:
+##     curl https://mise.run | sh
+##     mise install                       # python 3.11 + uv from [tools]
+##     mise run setup                     # install Python deps via uv
+##     mise run build                     # raw csvs → data/designs.csv
+##     mise run analysis:all              # run every canonical analysis
+
+[tools]
+python = "3.11"
+uv = "latest"
+
+[env]
+PYTHONPATH = "{{ config_root }}"
+MPLBACKEND = "Agg"
+
+# ---------------------------------------------------------------------------
+# Setup + dev
+# ---------------------------------------------------------------------------
+
+[tasks.setup]
+description = "Install Python deps via uv (one-time after clone)"
+run = "uv sync"
+
+[tasks.lint]
+description = "Lint with ruff"
+run = "uv run ruff check ."
+
+[tasks.format]
+description = "Auto-format with ruff"
+run = "uv run ruff format ."
+
+# ---------------------------------------------------------------------------
+# Data build — raw csvs → canonical designs.csv (322 rows, pseudonymised)
+# ---------------------------------------------------------------------------
+
+[tasks.build]
+description = "Parse raw ProteinBase + submissions → data/designs.csv + designs.parquet"
+run = "uv run python scripts/data/build_designs.py"
+
+[tasks."mirror:structures"]
+description = "Download every ProteinBase artifact (CIF, PNG, sensorgram) into data/ (idempotent)"
+depends = ["build"]
+run = "uv run python scripts/data/mirror_structures.py"
+
+[tasks."rerun:typer"]
+description = "Re-run ProteinTyper on designs missing predictions (env: PROTEINTYPER_API_TOKEN + PROTEINTYPER_*_URL)"
+depends = ["build"]
+run = "uv run python scripts/data/run_proteintyper.py"
+
+# ---------------------------------------------------------------------------
+# Complex re-scoring — one Modal app per model, fired via `modal run --detach`.
+# Each app supports `--limit N`, `--download`, `--retry_failed`. Outputs land
+# on the Modal Volume `rbx1-rerun-results` and pull down to
+# data/structures/<model>/ + data/metrics/<model>/.
+# Auth: `modal token set …` before running.
+# ---------------------------------------------------------------------------
+
+[tasks."rerun:boltz2"]
+description = "Boltz-2 complex prediction (target MSA via --use_msa_server; binder msa: empty)"
+depends = ["build"]
+run = "modal run --detach scripts/modal/modal_boltz2_rbx1.py"
+
+[tasks."rerun:chai1"]
+description = "Chai-1 complex prediction (ESM embeddings, no external MSA)"
+depends = ["build"]
+run = "modal run --detach scripts/modal/modal_chai1_rbx1.py"
+
+[tasks."rerun:protenix"]
+description = "Protenix v2 complex prediction (HF-mirrored weights; PROTENIX_MODEL_NAME to override)"
+depends = ["build"]
+run = "modal run --detach scripts/modal/modal_protenix_rbx1.py"
+
+[tasks."rerun:complex"]
+description = "Fire Boltz-2 + Chai-1 + Protenix re-scoring in parallel"
+depends = ["rerun:boltz2", "rerun:chai1", "rerun:protenix"]
+
+[tasks."download:boltz2"]
+description = "Pull Boltz-2 results from Modal Volume → data/{structures,metrics}/boltz2"
+run = "modal run scripts/modal/modal_boltz2_rbx1.py --download"
+
+[tasks."download:chai1"]
+description = "Pull Chai-1 results from Modal Volume → data/{structures,metrics}/chai"
+run = "modal run scripts/modal/modal_chai1_rbx1.py --download"
+
+[tasks."download:protenix"]
+description = "Pull Protenix results from Modal Volume → data/{structures,metrics}/protenix"
+run = "modal run scripts/modal/modal_protenix_rbx1.py --download"
+
+[tasks."build:grand"]
+description = "Pool data/metrics/{proteintyper,boltz2,chai,protenix}/*.json → data/grand_metrics.csv"
+run = "uv run python scripts/data/build_grand_metrics.py"
+
+[tasks.figures]
+description = "Render every figure paper/main.tex references → figures/paper/*.{png,pdf,svg}"
+depends = ["build"]
+run = "uv run python scripts/plotting/figures.py"
+
+# ---------------------------------------------------------------------------
+# Canonical analyses
+# ---------------------------------------------------------------------------
+
+[tasks."analysis:overview"]
+description = "Headline counts: designs, expression, binders, modality x method cross-tab"
+run = "uv run python analyses/overview/main.py"
+
+[tasks."analysis:leaderboard"]
+description = "Top binders, KD table, method ranking"
+run = "uv run python analyses/leaderboard/main.py"
+
+[tasks."analysis:all"]
+description = "Run every canonical analysis end-to-end"
+depends = ["analysis:overview", "analysis:leaderboard"]
+
+# ---------------------------------------------------------------------------
+# Per-collaborator analyses — ADD YOURS BELOW
+#
+# [tasks."analysis:yourname"]
+# description = "One-sentence answer to: what does my analysis tell us?"
+# run = "uv run python analyses/yourname/main.py"
+# ---------------------------------------------------------------------------

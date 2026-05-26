@@ -1,0 +1,22 @@
+pb_id,recovered_method,source
+frozen-toad-willow,LigandForge,proteinbase_collection_link
+dark-ox-jade,LigandForge,proteinbase_collection_link
+soft-panther-oak,LigandForge,proteinbase_collection_link
+swift-ram-cloud,LigandForge,proteinbase_collection_link
+amber-bee-jade,LigandForge,proteinbase_collection_link
+strong-gecko-flint,LigandForge,proteinbase_collection_link
+quick-moth-marble,LigandForge,proteinbase_collection_link
+young-owl-onyx,RFantibody + PPIFlow + ProteinMPNN,proteinbase_collection_link
+green-vole-fern,RFantibody + PPIFlow + ProteinMPNN,proteinbase_collection_link
+deep-bison-ice,RFantibody + PPIFlow + ProteinMPNN,proteinbase_collection_link
+bright-bear-moss,RFantibody + PPIFlow + ProteinMPNN,proteinbase_collection_link
+quick-vole-jade,RFantibody + PPIFlow + ProteinMPNN,proteinbase_collection_link
+violet-seal-ivy,RFantibody + PPIFlow + ProteinMPNN,proteinbase_collection_link
+amber-boar-pearl,RFantibody + PPIFlow + ProteinMPNN,proteinbase_collection_link
+steady-shark-orchid,OriginFlow + ProSLLaM + ProDESIGN-LE,proteinbase_collection_link
+dark-raven-lotus,OriginFlow + ProSLLaM + ProDESIGN-LE,proteinbase_collection_link
+crimson-swan-pine,OriginFlow + ProSLLaM + ProDESIGN-LE,proteinbase_collection_link
+green-hawk-quartz,OriginFlow + ProSLLaM + ProDESIGN-LE,proteinbase_collection_link
+gentle-eagle-oak,OriginFlow + ProSLLaM + ProDESIGN-LE,proteinbase_collection_link
+shy-mole-oak,OriginFlow + ProSLLaM + ProDESIGN-LE,proteinbase_collection_link
+dark-quail-leaf,OriginFlow + ProSLLaM + ProDESIGN-LE,proteinbase_collection_link

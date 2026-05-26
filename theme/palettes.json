@@ -1,0 +1,248 @@
+{
+  "_meta": {
+    "version": "2026.05",
+    "drift_notes": [
+      "Brand cyan was tightened in May 2026: #30C5F5 (--cyan), #33C4FF (--cyan-soft), #36B7F6 (--cyan-deep / logo). The earlier palette used #56A6D4 / #8CD2F4 / #2A4DD0 / #8B90DD — an indigo-leaning family that reads as 'older' next to the new cyan.",
+      "Body / heading typography moved Roboto -> Geist (body) + GT Pressura Extended (display). The plotting Python/R themes still keep Roboto as the matplotlib/ggplot fallback because GT Pressura is a paid display face we cannot ship inside a figure — Geist is acceptable if installed locally.",
+      "The legacy binding-strength palette is preserved verbatim under `legacy_*` keys for figure backwards-compatibility. NEW figures should use the `binding_strength_2026` family below, which uses cyan / white / dim and matches the current brand tokens."
+    ]
+  },
+  "style": {
+    "font_family": "Geist",
+    "font_family_fallback": "Roboto",
+    "heading_family": "GT Pressura Extended",
+    "mono_family": "SF Mono",
+    "text_color": "#0F1419",
+    "text_color_dark_canvas": "#FFFFFF",
+    "subtitle_color": "#36B7F6",
+    "background_color": "white",
+    "background_color_dark": "#0F1419",
+    "axis_line_color": "#0F1419",
+    "axis_line_width": 0.5,
+    "legend_border_color": "#0F1419"
+  },
+  "core": {
+    "cyan":        "#30C5F5",
+    "cyan_soft":   "#33C4FF",
+    "cyan_deep":   "#36B7F6",
+    "cyan_binder": "#00D9FF",
+    "ink":         "#0F1419",
+    "ink_navy":    "#142933",
+    "canvas":      "#FFFFFF",
+    "canvas_dark": "#0F1419",
+    "good":        "#1FE48F",
+    "good_light":  "#08A35A",
+    "warn":        "#FFB547",
+    "bad":         "#FF4628"
+  },
+  "palettes": {
+    "binding_strength_2026": {
+      "Binder":              "#00D9FF",
+      "Strong":              "#30C5F5",
+      "Medium":              "#33C4FF",
+      "Weak":                "#36B7F6",
+      "Potential binder":    "#9EDFFF",
+      "Non-binder":          "#5C6773",
+      "No expression":       "#9EA2AF",
+      "Unknown":             "#98A2AE",
+      "Missing data":        "#3E6175"
+    },
+    "binding_strength": {
+      "None":                "#E5E7EB",
+      "Not expressed":       "#9EA2AF",
+      "Unknown":             "#9EA2AF",
+      "Weak":                "#C4B2FB",
+      "Medium":              "#A7C1FB",
+      "Strong":              "#2A4DD0",
+      "Missing data":        "#3E6175",
+      "Missing binding data": "#3E6175",
+      "% binders":           "#DC7A73"
+    },
+    "expression": {
+      "None":          "#E5E7EB",
+      "Not expressed": "#E5E7EB",
+      "Low":           "#9EA2AF",
+      "Medium":        "#E9C435",
+      "High":          "#69B7A7",
+      "Missing data":  "#9EA2AF"
+    },
+    "selected": {
+      "Top 100":           "#8B90DD",
+      "Adaptyv selection": "#8CD2F4",
+      "Not selected":      "#E5E7EB",
+      "No":                "#E5E7EB"
+    },
+    "design_category": {
+      "De novo":           "#56A6D4",
+      "Optimized binder":  "#8B90DD",
+      "Diversified binder": "#8CD2F4",
+      "Hallucination":     "#3E6175",
+      "Physics-based":     "#69B7A7",
+      "Not mentioned":     "#E5E7EB"
+    },
+    "design_strategy": {
+      "de_novo":            "#56A6D4",
+      "lead_optimization":  "#8B90DD",
+      "De novo":            "#56A6D4",
+      "Lead optimization":  "#8B90DD",
+      "Not mentioned":      "#E5E7EB",
+      "unknown":            "#E5E7EB"
+    },
+    "binder_category": {
+      "De novo":        "#56A6D4",
+      "Existing binder": "#8B90DD",
+      "Non-binder":     "#E5E7EB"
+    },
+    "aa_class": {
+      "Hydrophobic": "#2A4DD0",
+      "Polar":       "#A7C1FB",
+      "Basic":       "#C4B2FB",
+      "Acidic":      "#DC7A73",
+      "Special":     "#69B7A7"
+    },
+    "dssp": {
+      "helix": "#8CD2F4",
+      "sheet": "#56A6D4",
+      "loop":  "#8B90DD"
+    },
+    "homology": {
+      "EGF-like":       "#FFB6C1",
+      "TGFα-like":      "#B0E0E6",
+      "Antibody-like":  "#FFE4B5"
+    },
+    "binding_status": {
+      "Binder":     "#2A4DD0",
+      "Non-binder": "#E5E7EB"
+    },
+    "binding_status_2026": {
+      "Binder":     "#00D9FF",
+      "Non-binder": "#5C6773"
+    },
+    "round": {
+      "1": "#8CD2F4",
+      "2": "#8B90DD"
+    },
+    "round_label": {
+      "Round 1": "#3E6175",
+      "Round 2": "#56A6D4"
+    },
+    "model_type": {
+      "Yes": "#56A6D4",
+      "No":  "#E5E7EB"
+    },
+    "BindCraft": {
+      "BindCraft": "#56A6D4",
+      "Other":     "#E5E7EB"
+    },
+    "RFdiffusion": {
+      "RFdiffusion": "#8B90DD",
+      "Other":       "#E5E7EB"
+    },
+    "ESM": {
+      "ESM":   "#8CD2F4",
+      "Other": "#E5E7EB"
+    },
+    "TIMED": {
+      "TIMED":      "#56A6D4",
+      "ProteinMPNN": "#8B90DD",
+      "ESM-IF":     "#8CD2F4",
+      "Other":      "#E5E7EB"
+    },
+    "AF2_backprop": {
+      "AF2 backprop": "#8CD2F4",
+      "Other":        "#E5E7EB"
+    },
+    "Other_hallucination": {
+      "Other hallucination": "#8CD2F4",
+      "Other":               "#E5E7EB"
+    },
+    "method_group": {
+      "RFdiffusion":            "#8B90DD",
+      "BindCraft":              "#56A6D4",
+      "ProteinMPNN":            "#3E6175",
+      "Custom generative":      "#69B7A7",
+      "ESM2/3":                 "#8CD2F4",
+      "Fine-tuned pLM":         "#2A8C6A",
+      "MLDE / Active learning": "#E9C435",
+      "Other hallucination":    "#C4B2FB",
+      "Rosetta / Physics":      "#A7C1FB",
+      "Rational design":        "#DC7A73",
+      "AF2 backprop":           "#2A4DD0",
+      "EvoDiff":                "#9EA2AF",
+      "Other":                  "#E5E7EB",
+      "Not mentioned":          "#F5F5F5"
+    },
+    "annotation_status": {
+      "Annotated":      "#56A6D4",
+      "Not mentioned":  "#E5E7EB"
+    },
+    "de_novo": {
+      "De novo":        "#56A6D4",
+      "Existing binder": "#8B90DD"
+    },
+    "design_method": {
+      "Backbone diffusion":          "#56A6D4",
+      "Backbone hallucination":      "#8B90DD",
+      "Inverse folding":             "#8CD2F4",
+      "Supervised seq. optimization": "#3E6175",
+      "pLM likelihood optimization": "#69B7A7",
+      "Sequence sampling":           "#2A8C6A",
+      "Rational design":             "#E9C435",
+      "Physics-based":               "#A7C1FB",
+      "Not mentioned":               "#E5E7EB"
+    },
+    "metric": {
+      "ESM2 PLL": "#8CD2F4",
+      "ipTM":     "#8B90DD",
+      "iPAE":     "#3E6175"
+    },
+    "molecule_type": {
+      "Miniprotein":    "#56A6D4",
+      "De novo (large)": "#3E6175",
+      "Peptide":        "#69B7A7",
+      "Nanobody":       "#8B90DD",
+      "ScFV":           "#C4B2FB",
+      "EGF-like":       "#DC7A73",
+      "TGFa-like":      "#E9C435",
+      "Unidentified":   "#9EA2AF"
+    },
+    "parent_molecule": {
+      "None":      "#E5E7EB",
+      "Cetuximab": "#8B90DD",
+      "EGF":       "#DC7A73",
+      "TGFa":      "#E9C435"
+    },
+    "neutralization_design_type": {
+      "de novo":      "#8CD2F4",
+      "EGF-like":     "#69B7A7",
+      "round1 combo": "#E9C435",
+      "scFV-like":    "#8B90DD",
+      "nanobody-like": "#2A4DD0"
+    },
+    "round_2026": {
+      "1": "#36B7F6",
+      "2": "#30C5F5",
+      "3": "#00D9FF"
+    },
+    "selected_2026": {
+      "Adaptyv selection": "#30C5F5",
+      "Top 100":           "#36B7F6",
+      "Not selected":      "#5C6773",
+      "No":                "#5C6773"
+    },
+    "agent_vs_human": {
+      "Agent": "#30C5F5",
+      "Human": "#1FE48F",
+      "Mixed": "#FFB547",
+      "Other": "#5C6773"
+    },
+    "riso_carousel": {
+      "skyblue":     "#4982CF",
+      "mediumblue":  "#3255A4",
+      "federalblue": "#3D5588",
+      "fluorpink":   "#FF48B0",
+      "cornflower":  "#62A8E5",
+      "aqua":        "#5EC8E5"
+    }
+  }
+}

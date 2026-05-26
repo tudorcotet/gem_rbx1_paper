@@ -1,0 +1,59 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+.eggs/
+.venv/
+venv/
+build/
+dist/
+
+# Tooling
+.ruff_cache/
+.mypy_cache/
+.pytest_cache/
+.ipynb_checkpoints/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Editor
+.vscode/
+.idea/
+*.swp
+*~
+
+# Analysis outputs — main.py regenerates them; never commit
+analyses/*/scratch/
+analyses/*/report.md
+analyses/*/summary.json
+analyses/*/*.csv
+!analyses/_template/
+
+figures/exploration/
+*.tmp
+
+# Local credentials / env
+.env
+.env.local
+
+# Private team-handle → pseudonym mapping. Never committed.
+data/team_pseudonyms.csv
+
+# Private raw submissions form export — has author_name, votes, comments etc.
+# The sanitized public version lives next to it (without `.private`).
+data/raw/submissions/*.private.csv
+
+# LaTeX intermediates
+paper/*.aux
+paper/*.log
+paper/*.out
+paper/*.bbl
+paper/*.blg
+paper/*.toc
+paper/*.synctex.gz
+paper/*.fdb_latexmk
+paper/*.fls
+paper/_build/

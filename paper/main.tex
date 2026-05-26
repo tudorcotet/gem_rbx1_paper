@@ -1,0 +1,130 @@
+% RBX1 — GEM x Adaptyv 2026 binder design competition
+% Brief communication. Two main figures + supplementary.
+%
+% Two ways to compile:
+%   (a) Local: `cd paper && latexmk -pdf main.tex`   (assumes pandoc
+%       has rendered sections/*.md → _build/*.tex; see paper/README.md)
+%   (b) Overleaf: link this repo to an Overleaf project (paper/OVERLEAF.md).
+%       Overleaf compiles main.tex directly; sections/*.tex can be
+%       authored in Overleaf or synced from the markdown source.
+
+\documentclass[10pt,letterpaper]{article}
+
+\usepackage[a4paper,margin=2.5cm]{geometry}
+\usepackage[utf8]{inputenc}
+\usepackage{microtype}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{hyperref}
+\usepackage{natbib}
+
+% Figures live in ../figures/paper/. \includegraphics{fig1_workflow}
+% resolves to ../figures/paper/fig1_workflow.{pdf,png}, picking the
+% highest-quality available format.
+\graphicspath{{../figures/paper/}}
+
+\title{Community-scale binder design against RBX1: a public benchmark
+of 322 designs from the GEM\,$\times$\,Adaptyv 2026 competition}
+\author{The GEM\,$\times$\,Adaptyv RBX1 Consortium\thanks{Corresponding
+author: tudor@adaptyvbio.com}}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+\input{_build/abstract}
+\end{abstract}
+
+\section*{Introduction}
+\input{_build/introduction}
+
+\section*{Results}
+\input{_build/results}
+
+% ----------------------------------------------------------------------
+% Main figures
+% ----------------------------------------------------------------------
+
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=\textwidth]{fig1_workflow}
+  \caption{\textbf{Competition workflow.} Target submission $\rightarrow$
+  community design (198 teams, 12,707 sequences) $\rightarrow$ organiser
+  selection (322 designs) $\rightarrow$ expression $\rightarrow$ SPR
+  binding screen. Outcome: 9 binders, 1 Strong (KD = 26\,nM).}
+  \label{fig:workflow}
+\end{figure}
+
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=\textwidth]{fig2_results}
+  \caption{\textbf{Results landscape.}
+  (A) Design counts per method family.
+  (B) Hit rate per method family with raw n/N.
+  (C) KD ladder for the 9 binders.
+  (D) Novelty (AFDB50 identity) vs KD.}
+  \label{fig:results}
+\end{figure}
+
+\section*{Discussion}
+\input{_build/discussion}
+
+\section*{Methods}
+\input{_build/methods}
+
+\bibliographystyle{naturemag}
+\bibliography{references}
+
+% ----------------------------------------------------------------------
+% Supplementary
+% ----------------------------------------------------------------------
+\clearpage
+\appendix
+\renewcommand{\thefigure}{S\arabic{figure}}
+\setcounter{figure}{0}
+\section*{Supplementary figures}
+
+\begin{figure}[h]
+  \centering
+  \includegraphics[width=\textwidth]{figS1_modality_method_crosstab}
+  \caption{\textbf{Modality $\times$ method-family cross-tab.} Designs
+  binned by submitter-declared modality (rows) and parsed method family
+  (columns). The dominant ``Other'' modality bucket (n=164) is a
+  ProteinBase classifier limitation; submitter declarations are richer.}
+  \label{fig:s1_xtab}
+\end{figure}
+
+\begin{figure}[h]
+  \centering
+  \includegraphics[width=\textwidth]{figS2_target_region}
+  \caption{\textbf{Submitter-declared target region vs binder outcome.}
+  7 of 9 binders explicitly target the IDR/N-terminus
+  (\texttt{submission\_target\_region}); only 1 targets the RING
+  domain alone.}
+  \label{fig:s2_target}
+\end{figure}
+
+\begin{figure}[h]
+  \centering
+  \includegraphics[width=\textwidth]{figS3_kd_replicates}
+  \caption{\textbf{Per-replicate KD distribution for the 9 binders.}
+  Mean $\pm$ replicate min/max from \texttt{kd\_nM\_\{min,mean,max\}};
+  individual replicate fits from
+  \texttt{data/sensorgrams/<pb\_id>\_rep<NN>\_spr.json}.}
+  \label{fig:s3_kd}
+\end{figure}
+
+\begin{figure}[h]
+  \centering
+  \includegraphics[width=\textwidth]{figS4_complex_grand_metrics}
+  \caption{\textbf{Re-fold confidence across models.} Boltz-2 ipSAE,
+  Chai-1 aggregate score, and Protenix-v2 ipSAE on the binder--RBX1
+  complex for all 322 designs. Source: \texttt{data/grand\_metrics.csv}.}
+  \label{fig:s4_complex}
+\end{figure}
+
+\end{document}

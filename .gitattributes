@@ -1,0 +1,32 @@
+# Raw inputs keep LF line endings — never auto-rewrite
+data/raw/proteinbase/*.csv text eol=lf
+data/raw/submissions/*.csv text eol=lf
+data/designs.csv text eol=lf
+data/designs.fasta text eol=lf
+
+# Structures by model — one CIF per design per model. Git LFS.
+data/structures/esmfold/*.cif    filter=lfs diff=lfs merge=lfs -text
+data/structures/boltz2/*.cif     filter=lfs diff=lfs merge=lfs -text
+data/structures/protenix/*.cif   filter=lfs diff=lfs merge=lfs -text
+data/structures/chai/*.cif       filter=lfs diff=lfs merge=lfs -text
+
+# Per-model raw metric JSONs (PAE matrices, ipSAE, full TyperJobOutput, …)
+data/metrics/proteintyper/*.json filter=lfs diff=lfs merge=lfs -text
+data/metrics/boltz2/*.json       filter=lfs diff=lfs merge=lfs -text
+data/metrics/protenix/*.json     filter=lfs diff=lfs merge=lfs -text
+data/metrics/chai/*.json         filter=lfs diff=lfs merge=lfs -text
+
+# Stylised renders + BLI/SPR sensorgrams — sit alongside structures, not inside
+data/images/*.png                filter=lfs diff=lfs merge=lfs -text
+data/sensorgrams/*.json          filter=lfs diff=lfs merge=lfs -text
+
+# The parquet sibling can balloon — keep it LFS too
+data/designs.parquet filter=lfs diff=lfs merge=lfs -text
+
+# Pooled re-scoring table (Boltz-2 + Protenix + Chai-1 + monomer typer)
+data/grand_metrics.csv  text eol=lf
+
+# Per-model raw PAE / pLDDT NPZ blobs — only fetched on demand
+data/metrics/boltz2/*.npz    filter=lfs diff=lfs merge=lfs -text
+data/metrics/protenix/*.npz  filter=lfs diff=lfs merge=lfs -text
+data/metrics/chai/*.npz      filter=lfs diff=lfs merge=lfs -text
