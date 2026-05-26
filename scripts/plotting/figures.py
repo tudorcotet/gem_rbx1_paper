@@ -66,8 +66,7 @@ def fig1_workflow() -> None:
                               facecolor=CYAN if i == n - 1 else "white",
                               edgecolor=INK, linewidth=0.7)
         ax.add_patch(rect)
-        ax.text(cx, 0.2, title, ha="center", va="center",
-                fontsize=8, fontweight="bold")
+        ax.text(cx, 0.2, title, ha="center", va="center", fontsize=8)
         ax.text(cx, -0.25, sub, ha="center", va="center",
                 fontsize=7, color=INK if i == n - 1 else SLATE)
         if i < n - 1:
@@ -90,7 +89,7 @@ def fig2_results() -> None:
     df = load_designs()
     is_binder = df["is_binder"].astype("boolean").fillna(False)
 
-    fig, axes = plt.subplots(2, 2, figsize=(7.2, 5.6))
+    fig, axes = plt.subplots(2, 2, figsize=(7.2, 6.2))
 
     # A: counts per method family (top 10)
     top10 = (
@@ -157,6 +156,12 @@ def fig2_results() -> None:
     ax.set_ylabel("KD (nM)")
     ax.set_yscale("log")
     ax.set_title("D  Novelty vs affinity", loc="left", fontsize=9)
+    if len(plot_df):
+        # Pad axes so staggered labels don't cross the edge.
+        xmin, xmax = plot_df["pb_seqidentity_afdb50"].min(), plot_df["pb_seqidentity_afdb50"].max()
+        ymin, ymax = plot_df["kd_nM_mean"].min(), plot_df["kd_nM_mean"].max()
+        ax.set_xlim(xmin - (xmax - xmin) * 0.10, xmax + (xmax - xmin) * 0.25)
+        ax.set_ylim(ymin * 0.5, ymax * 2.0)
 
     fig.tight_layout()
     save_figure(fig, "paper/fig2_results")

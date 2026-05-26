@@ -21,7 +21,7 @@
 # Windows/Linux; DejaVu Sans is matplotlib's bundled fallback. NEVER set
 # Geist or Inter here — Geist is brand body, Inter is the AI-default tell.
 font.family:        sans-serif
-font.sans-serif:    Helvetica, Arial, Liberation Sans, DejaVu Sans
+font.sans-serif:    Geist, Helvetica, Arial, Liberation Sans, DejaVu Sans
 font.size:          8
 font.weight:        regular
 font.style:         normal
@@ -50,7 +50,7 @@ axes.labelcolor:        0F1419
 axes.labelweight:       regular
 axes.labelsize:         8
 axes.titlesize:         9
-axes.titleweight:       bold
+axes.titleweight:       regular
 axes.titlepad:          4.0
 axes.labelpad:          3.0
 axes.grid:              False
@@ -142,7 +142,7 @@ figure.facecolor:       white
 figure.edgecolor:       white
 figure.frameon:         False
 figure.titlesize:       10
-figure.titleweight:     bold
+figure.titleweight:     regular
 figure.subplot.left:    0.12
 figure.subplot.right:   0.97
 figure.subplot.top:     0.92

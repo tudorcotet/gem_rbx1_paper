@@ -134,16 +134,36 @@ def _as_float(value: object, default: float) -> float:
         return default
 
 
-def _resolve_font_family() -> str:
-    """Return the first matplotlib-installed brand font, falling back gracefully.
+_FONTS_DIR = Path(__file__).resolve().parent / "fonts"
 
-    Order: Geist (canonical) -> Roboto (legacy 2024 EGFR theme fallback) ->
-    DejaVu Sans (always present in matplotlib).
+
+def _register_bundled_fonts() -> None:
+    """Register every TTF/OTF under theme/fonts/ with matplotlib.
+
+    Geist is OFL-licensed but not system-installed by default. Bundling
+    Geist-Regular.ttf in the repo and registering at import time means
+    every figure renders in the brand body face without asking the user
+    to install fonts on their machine.
     """
+    if not _FONTS_DIR.exists():
+        return
+    try:
+        from matplotlib import font_manager
+        for path in _FONTS_DIR.glob("*.[ot]tf"):
+            font_manager.fontManager.addfont(str(path))
+    except Exception:
+        pass
+
+
+_register_bundled_fonts()
+
+
+def _resolve_font_family() -> str:
+    """First brand-installed sans-serif. Geist > Helvetica > DejaVu Sans."""
     try:
         from matplotlib import font_manager
         available = {f.name for f in font_manager.fontManager.ttflist}
-        for candidate in ("Geist", "Roboto"):
+        for candidate in ("Geist", "Helvetica", "Roboto"):
             if candidate in available:
                 return candidate
     except Exception:
@@ -205,8 +225,9 @@ def set_brand_style(*, dark: bool = False) -> None:
     axis_line_width = _as_float(style.get("axis_line_width"), 0.5)
 
     mpl.rcParams.update({
-        # Base font / colors
+        # Base font / colors — Geist Regular for everything.
         "font.family": font_family,
+        "font.weight": "regular",
         "text.color": text_color,
         "axes.labelcolor": text_color,
         "xtick.color": text_color,
@@ -214,23 +235,26 @@ def set_brand_style(*, dark: bool = False) -> None:
         # Backgrounds
         "figure.facecolor": background_color,
         "axes.facecolor": background_color,
-        # Grid (off in canonical brand style — let the data carry the surface)
+        # Grid off in the canonical brand style — data carries the surface.
         "axes.grid": False,
         # Spines
         "axes.edgecolor": axis_line_color,
         "axes.linewidth": axis_line_width,
         # Legend
-        "legend.frameon": True,
+        "legend.frameon": False,
         "legend.edgecolor": legend_border_color,
         "legend.framealpha": 1.0,
         "legend.facecolor": background_color,
-        # Default sizes (per-figure overrides welcome)
-        "axes.titlesize": 20,
-        "axes.titleweight": "bold",
-        "axes.labelsize": 12,
-        "axes.labelweight": "bold",
-        "xtick.labelsize": 10,
-        "ytick.labelsize": 10,
+        # Sizes and weights — paper-grade, NOT bold (matplotlibrc already
+        # sets these to 9 / 8 / regular; we restate so the deprecation of
+        # the older bold-everything defaults is explicit).
+        "axes.titlesize": 9,
+        "axes.titleweight": "regular",
+        "axes.labelsize": 8,
+        "axes.labelweight": "regular",
+        "xtick.labelsize": 7,
+        "ytick.labelsize": 7,
+        "figure.titleweight": "regular",
     })
 
 
