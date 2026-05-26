@@ -230,7 +230,7 @@ buckets (with first-pass counts):
 | `MoPPIt`                     | 20  | PPI optimiser. |
 | `LFM2`                       | 14  | Liquid AI's LFM2 with method-specific customisation. |
 | `AF2 hallucination + ADFlip` | 7   | AF2 backprop + sequence editor. |
-| `BindCraft 2`                | 7   | Pacesa's unpublished branch. Cite as personal comm. |
+| `BindCraft 2`                | 7   | Pacesa Lab's unpublished branch of BindCraft. |
 | `Bagel + SoluMPNN`           | 7   | … |
 | `FoldCraft`                  | 7   | … |
 | `PepMind + AF3`              | 7   | … |
