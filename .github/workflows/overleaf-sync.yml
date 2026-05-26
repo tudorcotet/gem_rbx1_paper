@@ -61,12 +61,7 @@ jobs:
             git push origin main
           fi
 
-      - name: Split paper/ subtree
-        run: |
-          git subtree split --prefix=paper -b overleaf-mirror
-          echo "OVERLEAF_BRANCH=overleaf-mirror" >> "$GITHUB_ENV"
-
-      - name: Push paper subtree to Overleaf
+      - name: Mirror paper/ into Overleaf clone and push
         env:
           OVERLEAF_PROJECT_ID: ${{ secrets.OVERLEAF_PROJECT_ID }}
           OVERLEAF_TOKEN:      ${{ secrets.OVERLEAF_TOKEN }}
@@ -75,10 +70,26 @@ jobs:
             echo "::warning::OVERLEAF_PROJECT_ID / OVERLEAF_TOKEN not set — skipping Overleaf push"
             exit 0
           fi
-          git remote add overleaf "https://git:${OVERLEAF_TOKEN}@git.overleaf.com/${OVERLEAF_PROJECT_ID}"
-          # Overleaf's only branch is `master`. Force-push wins last-write — the
-          # `pull-from-overleaf` job below catches collaborator changes first.
-          git push --force overleaf "${OVERLEAF_BRANCH}:master"
+          # Overleaf prohibits force-push, so subtree-split (which generates
+          # new SHAs each time) is rejected. Instead: clone Overleaf, replace
+          # its working tree with the contents of `paper/`, commit, push. The
+          # Overleaf side always remains on its own master lineage.
+          SRC="$PWD/paper"
+          TMP=$(mktemp -d)
+          git clone "https://git:${OVERLEAF_TOKEN}@git.overleaf.com/${OVERLEAF_PROJECT_ID}" "$TMP/overleaf"
+          cd "$TMP/overleaf"
+          # Wipe tracked files (but keep .git). Then copy the fresh paper/ in.
+          git rm -rf --quiet . || true
+          rsync -a --exclude='.git' "$SRC"/ ./
+          git add -A
+          if ! git diff --quiet --cached; then
+            git -c user.email="github-actions[bot]@users.noreply.github.com" \
+                -c user.name="github-actions[bot]" \
+                commit -m "Mirror paper/ from GitHub @ ${GITHUB_SHA::7}"
+            git push origin master
+          else
+            echo "[overleaf] no changes vs Overleaf master — skipping push"
+          fi
 
   pull-from-overleaf:
     if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
