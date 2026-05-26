@@ -179,16 +179,24 @@ def score_prodigy(pb_id: str) -> dict:
     RESULTS_VOLUME.reload()
 
     out_path = Path(RESULTS_DIR) / PREDICTOR / f"{pb_id}.json"
-    # Soft cache: skip if all four sources are recorded with status=='ok'.
+    # First scan which source structures actually exist on the volume so we
+    # don't skip a rerun just because the JSON was written before AF2-M /
+    # Protenix landed.
+    available_sources: set[str] = set()
+    for src in SOURCE_PREDICTORS:
+        struct_dir = Path(RESULTS_DIR) / "structures" / src
+        if (struct_dir / f"{pb_id}.cif").exists() or (struct_dir / f"{pb_id}.pdb").exists():
+            available_sources.add(src)
+
     if out_path.exists():
         try:
             cached = json.loads(out_path.read_text())
             cached_sources = {k for k in cached if k in SOURCE_PREDICTORS}
-            if cached_sources and all(
+            # Skip only if every available source is already scored ok.
+            if available_sources and available_sources.issubset(cached_sources) and all(
                 isinstance(cached.get(s), dict) and cached[s].get("status") == "ok"
-                for s in cached_sources
+                for s in available_sources
             ):
-                # Already done — keep it.
                 return cached
         except Exception:
             cached = {}
