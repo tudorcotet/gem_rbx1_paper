@@ -61,11 +61,10 @@ GPU = os.environ.get("GPU", "A100")
 TIMEOUT_MIN = int(os.environ.get("TIMEOUT", 180))
 CONCURRENCY = int(os.environ.get("CONCURRENCY", 3))
 MODEL_NAME = os.environ.get("PROTENIX_MODEL_NAME", "protenix-v2")
-# Protenix's bundled MSA client (colab_request_utils) queues against the
-# public ColabFold server and frequently blocks for 30+ min per call. Set
-# PROTENIX_USE_MSA=true once the queue is healthy or once you've staged a
-# precomputed RBX1 MSA on the volume.
-USE_MSA = os.environ.get("PROTENIX_USE_MSA", "false").lower() in {"1", "true", "yes"}
+# Target chain A gets a ColabFold MMseqs2 MSA via Protenix's bundled
+# `colab_request_utils` client (queues against api.colabfold.com). Flip to
+# `false` to skip MSA if the queue is jammed.
+USE_MSA = os.environ.get("PROTENIX_USE_MSA", "true").lower() in {"1", "true", "yes"}
 
 # Modal app / volume names — overridable for external users.
 APP_NAME = os.environ.get("MODAL_APP_NAME", "rbx1-protenix")
@@ -430,8 +429,14 @@ class ProtenixPredictor:
             input_path.write_text(json.dumps(input_data))
 
             self.configs["dump_dir"] = str(out_dir)
-            self.configs["input_json_path"] = update_infer_json(
+            # protenix>=2.0 returns (json_path, actual_updated_bool); older
+            # versions returned just the string. Unwrap the tuple — ml_collections
+            # rejects a tuple assignment to a string-typed reference field.
+            _msa_ret = update_infer_json(
                 str(input_path), out_dir=str(out_dir), use_msa=USE_MSA
+            )
+            self.configs["input_json_path"] = (
+                _msa_ret[0] if isinstance(_msa_ret, tuple) else _msa_ret
             )
             infer_predict(self.runner, self.configs)
 

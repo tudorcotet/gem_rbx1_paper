@@ -72,9 +72,38 @@ description = "Protenix v2 complex prediction (HF-mirrored weights; PROTENIX_MOD
 depends = ["build"]
 run = "modal run --detach scripts/modal/modal_protenix_rbx1.py"
 
+[tasks."rerun:af2m"]
+description = "AlphaFold2-Multimer (ColabFold MMseqs2) complex prediction"
+depends = ["build"]
+run = "modal run --detach scripts/modal/modal_af2m_rbx1.py"
+
 [tasks."rerun:complex"]
-description = "Fire Boltz-2 + Chai-1 + Protenix re-scoring in parallel"
-depends = ["rerun:boltz2", "rerun:chai1", "rerun:protenix"]
+description = "Fire Boltz-2 + Chai-1 + Protenix + AF2-M re-scoring in parallel"
+depends = ["rerun:boltz2", "rerun:chai1", "rerun:protenix", "rerun:af2m"]
+
+[tasks."rerun:prodigy"]
+description = "PRODIGY binding-ΔG scoring on every complex CIF/PDB"
+depends = ["build"]
+run = "modal run --detach scripts/modal/modal_prodigy_rbx1.py"
+
+[tasks."rerun:destress"]
+description = "DE-STRESS stability (Rosetta + EvoEF2 + BUDEFF) on every structure"
+depends = ["build"]
+run = "modal run --detach scripts/modal/modal_destress_rbx1.py"
+
+[tasks."rerun:esm_pll"]
+description = "ESM2 t33 sequence pseudo-log-likelihood for every binder"
+depends = ["build"]
+run = "modal run --detach scripts/modal/modal_esm_pll_rbx1.py"
+
+[tasks."rerun:netsolp"]
+description = "NetSolP solubility prediction for every binder"
+depends = ["build"]
+run = "modal run --detach scripts/modal/modal_netsolp_rbx1.py"
+
+[tasks."rerun:scoring"]
+description = "Fire PRODIGY + DE-STRESS + ESM-PLL + NetSolP in parallel"
+depends = ["rerun:prodigy", "rerun:destress", "rerun:esm_pll", "rerun:netsolp"]
 
 [tasks."download:boltz2"]
 description = "Pull Boltz-2 results from Modal Volume → data/{structures,metrics}/boltz2"
@@ -88,8 +117,28 @@ run = "modal run scripts/modal/modal_chai1_rbx1.py --download"
 description = "Pull Protenix results from Modal Volume → data/{structures,metrics}/protenix"
 run = "modal run scripts/modal/modal_protenix_rbx1.py --download"
 
+[tasks."download:af2m"]
+description = "Pull AF2-Multimer results from Modal Volume → data/{structures,metrics}/af2m"
+run = "modal run scripts/modal/modal_af2m_rbx1.py --download"
+
+[tasks."download:prodigy"]
+description = "Pull PRODIGY scores from Modal Volume → data/metrics/prodigy"
+run = "modal run scripts/modal/modal_prodigy_rbx1.py --download"
+
+[tasks."download:destress"]
+description = "Pull DE-STRESS scores from Modal Volume → data/metrics/destress"
+run = "modal run scripts/modal/modal_destress_rbx1.py --download"
+
+[tasks."download:esm_pll"]
+description = "Pull ESM-PLL scores from Modal Volume → data/metrics/esm_pll"
+run = "modal run scripts/modal/modal_esm_pll_rbx1.py --download"
+
+[tasks."download:netsolp"]
+description = "Pull NetSolP scores from Modal Volume → data/metrics/netsolp"
+run = "modal run scripts/modal/modal_netsolp_rbx1.py --download"
+
 [tasks."build:grand"]
-description = "Pool data/metrics/{proteintyper,boltz2,chai,protenix}/*.json → data/grand_metrics.csv"
+description = "Pool data/metrics/{proteintyper,boltz2,chai,protenix,af2m,prodigy,destress,esm_pll,netsolp}/*.json → data/grand_metrics.csv"
 run = "uv run python scripts/data/build_grand_metrics.py"
 
 [tasks.figures]
