@@ -10,6 +10,7 @@
 [tools]
 python = "3.11"
 uv = "latest"
+pandoc = "latest"  # used by `paper:render` to convert sections/*.md → _build/*.tex
 
 [env]
 PYTHONPATH = "{{ config_root }}"
@@ -145,6 +146,17 @@ run = "uv run python scripts/data/build_grand_metrics.py"
 description = "Render every figure paper/main.tex references → figures/paper/*.{png,pdf,svg}"
 depends = ["build"]
 run = "uv run python scripts/plotting/figures.py"
+
+[tasks."paper:render"]
+description = "pandoc-render paper/sections/*.md → paper/_build/*.tex (Overleaf needs the rendered .tex; it can't run pandoc on compile)"
+run = """
+mkdir -p paper/_build
+for src in paper/sections/*.md; do
+  name=$(basename "$src" .md)
+  pandoc --from=markdown --to=latex --output="paper/_build/${name}.tex" "$src"
+done
+echo "[paper:render] wrote paper/_build/*.tex"
+"""
 
 # ---------------------------------------------------------------------------
 # Canonical analyses

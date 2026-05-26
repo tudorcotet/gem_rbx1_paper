@@ -250,6 +250,15 @@ def _iter_scoring_json(
         yield pb_id, _read_json(layer_dir / f"{pb_id}.json")
 
 
+def _per_model_block(data: dict[str, Any]) -> dict[str, Any]:
+    """Pick the dict that holds the per-source-model sub-dicts. PRODIGY puts
+    them at top level (`{pb_id, boltz2: {...}, chai: {...}}`); DE-STRESS
+    nests them under `results` (`{pb_id, results: {...}}`)."""
+    if isinstance(data.get("results"), dict):
+        return data["results"]
+    return data
+
+
 def _discover_per_model_fields(
     layer_dir: Path,
     pb_ids: Iterable[str],
@@ -264,8 +273,9 @@ def _discover_per_model_fields(
     for _pb_id, data in _iter_scoring_json(layer_dir, pb_ids):
         if not isinstance(data, dict):
             continue
+        block = _per_model_block(data)
         for source in sources:
-            sub = data.get(source)
+            sub = block.get(source)
             if isinstance(sub, dict):
                 fields_by_source[source].update(sub.keys())
     return {s: sorted(fields_by_source[s]) for s in sources}
@@ -297,10 +307,11 @@ def _collect_per_model_scoring(
     ``prodigy_b2_dG``, ``destress_esmfold_rosetta_total``.
     """
     data = _read_json(layer_dir / f"{pb_id}.json")
+    block = _per_model_block(data) if isinstance(data, dict) else {}
     row: dict[str, Any] = {}
     for source in sources:
         sub_prefix = SCORING_SOURCE_PREFIX[source]
-        sub = (data or {}).get(source) if isinstance(data, dict) else None
+        sub = block.get(source) if isinstance(block, dict) else None
         for field in fields_by_source.get(source, []):
             value = sub.get(field) if isinstance(sub, dict) else None
             row[f"{layer}_{sub_prefix}_{field}"] = value
@@ -375,7 +386,9 @@ def main(argv: list[str] | None = None) -> None:
     rows: list[dict[str, Any]] = []
     for pb_id in pb_ids:
         row: dict[str, Any] = {"pb_id": pb_id}
-        row.update(_collect_typer(pb_id))
+        # `tp_*` was a planned re-export of ProteinTyper's monomer panel
+        # but it's redundant with the `pb_*` block merged from `designs.csv`
+        # below — same fields, same values, all 322 designs. Skipped.
         for model in COMPLEX_MODELS:
             row.update(_collect_complex(pb_id, model))
         # Scoring layers (per-source-model nesting).
@@ -403,6 +416,22 @@ def main(argv: list[str] | None = None) -> None:
     df = df.merge(designs[merge_cols], on="pb_id", how="left")
 
     df = _add_consensus(df)
+
+    # Drop scoring + per-model columns that ended up entirely null after
+    # discovery — keeps the table clean. We intentionally keep the
+    # `*_status` and `*_cif_exists` columns even when null because they're
+    # the "did this run?" tristate, not metrics. We also keep px_* / af2m_*
+    # null columns through the rebuild path so a later rerun has slots to
+    # populate; if a layer is completely empty (no JSONs on disk) we already
+    # skip generating its columns in `_discover_per_model_fields`.
+    drop_null_prefixes = ("destress_", "prodigy_", "netsolp_", "esm_pll_")
+    all_null = [
+        c for c in df.columns
+        if c.startswith(drop_null_prefixes) and df[c].isna().all()
+        and not c.endswith("_status")
+    ]
+    if all_null:
+        df = df.drop(columns=all_null)
 
     leading = ["design_id", "pb_id", "sequence_length", "is_binder", "is_strong"]
     cols = leading + [c for c in df.columns if c not in leading]

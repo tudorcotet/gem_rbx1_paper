@@ -1,0 +1,108 @@
+name: Overleaf sync
+
+# Push the rendered `paper/` subtree to the Overleaf Git remote so collaborators
+# can comment / track-change in Overleaf while GitHub stays canonical.
+#
+# Requires repo secrets:
+#   OVERLEAF_PROJECT_ID  — the ID at the end of your Overleaf project URL
+#   OVERLEAF_TOKEN       — generated at https://www.overleaf.com/user/settings (Git Integration)
+#
+# Two jobs:
+#   render-and-push:  renders pandoc → paper/_build/*.tex, commits if changed,
+#                     then mirrors `paper/` to Overleaf as the root of the project.
+#   pull-from-overleaf: hourly cron that fetches Overleaf into a `from-overleaf`
+#                       branch so collaborator edits land as a PR you can merge.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'paper/**'
+      - 'figures/paper/**'
+  schedule:
+    - cron: '17 * * * *'  # hourly, off the hour to avoid GitHub Actions queue spikes
+  workflow_dispatch:
+
+jobs:
+  render-and-push:
+    if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Install pandoc
+        run: sudo apt-get update -qq && sudo apt-get install -y pandoc
+
+      - name: Render markdown sections → LaTeX
+        run: |
+          mkdir -p paper/_build
+          for src in paper/sections/*.md; do
+            name=$(basename "$src" .md)
+            pandoc --from=markdown --to=latex \
+                   --output="paper/_build/${name}.tex" "$src"
+          done
+
+      - name: Commit re-rendered .tex if changed
+        run: |
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git config user.name  "github-actions[bot]"
+          if ! git diff --quiet paper/_build/; then
+            git add paper/_build/
+            git commit -m "Re-render paper/_build/*.tex (auto)"
+            git push origin main
+          fi
+
+      - name: Split paper/ subtree
+        run: |
+          git subtree split --prefix=paper -b overleaf-mirror
+          echo "OVERLEAF_BRANCH=overleaf-mirror" >> "$GITHUB_ENV"
+
+      - name: Push paper subtree to Overleaf
+        env:
+          OVERLEAF_PROJECT_ID: ${{ secrets.OVERLEAF_PROJECT_ID }}
+          OVERLEAF_TOKEN:      ${{ secrets.OVERLEAF_TOKEN }}
+        run: |
+          if [ -z "$OVERLEAF_PROJECT_ID" ] || [ -z "$OVERLEAF_TOKEN" ]; then
+            echo "::warning::OVERLEAF_PROJECT_ID / OVERLEAF_TOKEN not set — skipping Overleaf push"
+            exit 0
+          fi
+          git remote add overleaf "https://git:${OVERLEAF_TOKEN}@git.overleaf.com/${OVERLEAF_PROJECT_ID}"
+          # Overleaf's only branch is `master`. Force-push wins last-write — the
+          # `pull-from-overleaf` job below catches collaborator changes first.
+          git push --force overleaf "${OVERLEAF_BRANCH}:master"
+
+  pull-from-overleaf:
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Fetch Overleaf into a branch
+        env:
+          OVERLEAF_PROJECT_ID: ${{ secrets.OVERLEAF_PROJECT_ID }}
+          OVERLEAF_TOKEN:      ${{ secrets.OVERLEAF_TOKEN }}
+        run: |
+          if [ -z "$OVERLEAF_PROJECT_ID" ] || [ -z "$OVERLEAF_TOKEN" ]; then
+            echo "::warning::Overleaf secrets not set — skipping pull"
+            exit 0
+          fi
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git config user.name  "github-actions[bot]"
+          git remote add overleaf "https://git:${OVERLEAF_TOKEN}@git.overleaf.com/${OVERLEAF_PROJECT_ID}"
+          # The Overleaf side is the flat `paper/` subtree; we restage it under
+          # `paper/` on a branch and let the human open a PR to merge.
+          git fetch overleaf master
+          rm -rf paper/
+          git read-tree --prefix=paper/ -u overleaf/master
+          if ! git diff --quiet --cached; then
+            git checkout -B from-overleaf
+            git commit -m "Pull collaborator edits from Overleaf $(date -u +%Y-%m-%dT%H:%MZ)"
+            git push --force origin from-overleaf
+            echo "::notice::Pushed updated from-overleaf branch — open a PR to merge into main"
+          fi
