@@ -244,15 +244,29 @@ def run_batch(pb_ids: list[str]) -> None:
     pred_dir = Path(RESULTS_DIR) / PREDICTOR
     pred_dir.mkdir(parents=True, exist_ok=True)
 
+    # A pb_id counts as completed only when every source that has a
+    # structure on the volume is scored ok in the cached JSON. Drops the
+    # earlier bug where boltz2+chai-only JSONs from the first run masked
+    # AF2-M / Protenix landings.
+    def _available_sources_for(pb_id: str) -> set[str]:
+        out: set[str] = set()
+        for src in SOURCE_PREDICTORS:
+            d = Path(RESULTS_DIR) / "structures" / src
+            if (d / f"{pb_id}.cif").exists() or (d / f"{pb_id}.pdb").exists():
+                out.add(src)
+        return out
+
     completed: set[str] = set()
     for f in pred_dir.glob("*.json"):
         with contextlib.suppress(Exception):
             d = json.loads(f.read_text())
+            pid = d.get("pb_id") or f.stem
             srcs = {k for k in d if k in SOURCE_PREDICTORS}
-            if srcs and all(
-                isinstance(d.get(s), dict) and d[s].get("status") == "ok" for s in srcs
+            available = _available_sources_for(pid)
+            if available and available.issubset(srcs) and all(
+                isinstance(d.get(s), dict) and d[s].get("status") == "ok" for s in available
             ):
-                completed.add(d.get("pb_id") or f.stem)
+                completed.add(pid)
 
     pending = [p for p in pb_ids if p not in completed]
     print(f"PRODIGY: {len(completed)} done, {len(pending)} pending (of {len(pb_ids)})")
