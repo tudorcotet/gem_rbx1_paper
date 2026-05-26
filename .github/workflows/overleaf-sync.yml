@@ -23,6 +23,12 @@ on:
     - cron: '17 * * * *'  # hourly, off the hour to avoid GitHub Actions queue spikes
   workflow_dispatch:
 
+# `contents: write` is needed for both jobs: render-and-push commits the
+# re-rendered `paper/_build/*.tex` back to `main`; pull-from-overleaf pushes
+# a `from-overleaf` branch when collaborator edits land.
+permissions:
+  contents: write
+
 jobs:
   render-and-push:
     if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
