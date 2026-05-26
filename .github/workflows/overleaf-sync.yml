@@ -48,11 +48,17 @@ jobs:
           # Overleaf prohibits force-push. Clone Overleaf, replace working tree
           # with paper/ contents, commit, push along the existing master lineage.
           SRC="$PWD/paper"
+          FIGS="$PWD/figures/paper"
           TMP=$(mktemp -d)
           git clone "https://git:${OVERLEAF_TOKEN}@git.overleaf.com/${OVERLEAF_PROJECT_ID}" "$TMP/overleaf"
           cd "$TMP/overleaf"
           git rm -rf --quiet . || true
           rsync -a --exclude='.git' "$SRC"/ ./
+          # main.tex references figures via \graphicspath{./figures/}.
+          # Overleaf only sees what we push, so copy the .pdf renders into
+          # ./figures/ before commit. PDFs only — keeps the project small.
+          mkdir -p figures
+          cp "$FIGS"/*.pdf figures/ 2>/dev/null || true
           git add -A
           if ! git diff --quiet --cached; then
             git -c user.email="github-actions[bot]@users.noreply.github.com" \

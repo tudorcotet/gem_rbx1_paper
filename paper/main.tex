@@ -20,10 +20,12 @@
 \usepackage{hyperref}
 \usepackage{natbib}
 
-% Figures live in ../figures/paper/. \includegraphics{fig1_workflow}
-% resolves to ../figures/paper/fig1_workflow.{pdf,png}, picking the
-% highest-quality available format.
-\graphicspath{{../figures/paper/}}
+% Figures resolve via two candidate paths: ./figures/ (the Overleaf copy
+% staged by .github/workflows/overleaf-sync.yml) and ../figures/paper/
+% (the canonical location for local builds). LaTeX picks the first one
+% that contains the file and the highest-quality available format
+% (.pdf > .png).
+\graphicspath{{./figures/}{../figures/paper/}}
 
 \title{A community benchmark of de novo binder design against RBX1}
 \author{The GEM\,$\times$\,Adaptyv RBX1 Consortium\thanks{Corresponding
