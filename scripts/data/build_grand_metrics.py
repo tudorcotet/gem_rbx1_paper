@@ -437,9 +437,30 @@ def main(argv: list[str] | None = None) -> None:
     cols = leading + [c for c in df.columns if c not in leading]
     df = df[cols]
 
+    # Write the grand-metrics-only CSV (left for backwards compat + tooling).
     out_path = root / args.out
     out_path.parent.mkdir(parents=True, exist_ok=True)
     df.to_csv(out_path, index=False)
+
+    # Fold every new column back into the canonical designs.csv so the repo
+    # has a single source of truth. Drops the duplicate identity columns the
+    # grand table merged in (design_id, pb_id, ...) before joining.
+    grand_only_cols = [
+        c for c in df.columns
+        if c not in designs.columns and c not in {"design_id", "pb_id"}
+    ]
+    if grand_only_cols:
+        merged = designs.merge(df[["pb_id", *grand_only_cols]], on="pb_id", how="left")
+        designs_path = root / "data" / "designs.csv"
+        merged.to_csv(designs_path, index=False)
+        try:
+            merged.to_parquet(designs_path.with_suffix(".parquet"), index=False)
+        except Exception:
+            pass
+        print(
+            f"  unified designs.csv: {merged.shape[0]} x {merged.shape[1]} "
+            f"(added {len(grand_only_cols)} grand-metrics cols)"
+        )
 
     by_model = {m: int((df[f"{PREFIX[m]}_status"] == "ok").sum()) for m in COMPLEX_MODELS}
     print(
